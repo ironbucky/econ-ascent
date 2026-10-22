@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Econ Ascent — The Ascent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HOW TO EDIT
+   Colours / fonts / spacing ... TOKENS (just below)
+   Text, links, team names ..... the HTML (search for the section name)
+   Mobile layout ............... one block at the very end (RESPONSIVE)
+   Motion timings / numbers .... CONFIG at the top of the <script>
+   ============================================================ */
+
+/* ============ TOKENS ============ */
+:root{
+  --ink:#0A0D12; --paper:#F1EEE6; --lime:#D4FF3A; --red:#E5483B;
+  --bg:var(--paper); --fg:var(--ink);
+  --mute:color-mix(in oklab,var(--fg) 62%,transparent);
+  --line:color-mix(in oklab,var(--fg) 18%,transparent);
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Inter Tight',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --pad:clamp(20px,5vw,72px);
+}
+
+/* ============ BASE ============ */
+*{box-sizing:border-box;margin:0;padding:0}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+html{background:var(--bg);overflow-x:hidden;scrollbar-gutter:stable;scroll-padding-top:80px}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:clamp(16px,1.1vw,18px);line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img,svg{display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.wrap{padding-left:var(--pad);padding-right:var(--pad)}
+
+/* ============ PRELOADER ============ */
+.pre{position:fixed;inset:0;background:var(--ink);color:var(--paper);z-index:200;display:grid;place-items:center}
+.pre-word{font-family:var(--serif);font-size:clamp(40px,9vw,140px);letter-spacing:-.03em;opacity:.9}
+.pre-count{position:absolute;right:var(--pad);bottom:var(--pad);font-family:var(--mono);font-size:14px;color:var(--lime)}
+.pre-label{position:absolute;left:var(--pad);bottom:var(--pad);font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+
+/* ============ NAV ============ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px var(--pad);mix-blend-mode:difference;color:#fff}
+.nav a{text-decoration:none}
+.nav ol{display:flex;gap:22px;list-style:none}
+.nav ol a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+/* ============ SHARED LEVEL LAYOUT ============ */
+.level{position:relative;padding-top:clamp(96px,14svh,160px);padding-bottom:clamp(96px,14svh,160px)}
+.level-tag{display:flex;gap:14px;align-items:center;color:var(--mute)}
+.level-tag b{color:var(--fg);font-weight:500}
+.level-tag::before{content:"";width:28px;height:1px;background:currentColor}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(56px,11vw,190px);line-height:.88;letter-spacing:-.035em;margin-top:24px}
+h2 em{font-style:italic}
+
+/* ============ BUTTONS ============ */
+.cta{display:inline-flex;align-items:center;gap:14px;padding:18px 28px;background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:999px;will-change:transform}
+.cta.lime{background:var(--lime);color:var(--ink)}
+.cta .arr{display:inline-block;transition:transform .3s}
+.cta:hover .arr{transform:translateX(6px)}
+
+/* ============ 00 HERO (Base Camp) ============ */
+#base{min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:0}
+.hero-inner{position:relative;z-index:2;padding-top:110px}
+#terrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.9}
+.hero-title{position:relative;font-family:var(--serif);font-weight:400;font-size:clamp(64px,17vw,300px);line-height:.82;letter-spacing:-.05em;text-transform:uppercase}
+.hero-title .line{display:block;white-space:nowrap}
+.hero-title .line:nth-child(2){padding-left:.9em}
+.ch{display:inline-block;will-change:transform}
+.hero-meta{position:relative;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-top:40px}
+.hero-meta p{max-width:34ch;color:var(--mute)}
+
+.chart{position:absolute;left:0;bottom:0;width:100%;height:55%;pointer-events:none}
+.chart path{fill:none;stroke:var(--lime);stroke-width:3;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;vector-effect:non-scaling-stroke}
+.chart path.ghost{stroke:var(--fg);opacity:.12;stroke-width:1}
+.js .chart #ridge{stroke-dashoffset:1}   /* hidden until scroll draws it */
+
+.ticker{position:absolute;left:0;right:0;bottom:24px;overflow:hidden;white-space:nowrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;font-family:var(--mono);font-size:13px}
+.ticker-track{display:inline-block;animation:tick 28s linear infinite}
+.ticker span{margin-right:48px}
+.ticker .dn{color:var(--red)}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* ============ 00 MANIFESTO ============ */
+.manifesto{padding-top:clamp(64px,10svh,120px)}
+.manifesto p{font-family:var(--serif);font-size:clamp(34px,5.4vw,96px);line-height:1.06;letter-spacing:-.02em;max-width:18em}
+.js .manifesto .w{opacity:.14}   /* words light up on scroll */
+
+/* ============ 01 LEARN (pinned horizontal) ============ */
+.learn{height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;border-top:1px solid var(--line)}
+.learn-head{padding:0 var(--pad)}
+.htrack{display:flex;gap:clamp(20px,3vw,48px);padding:48px var(--pad) 0;width:max-content;will-change:transform}
+.hcard{width:clamp(280px,30vw,460px);height:clamp(340px,50svh,480px);border-top:1px solid var(--fg);padding:24px 0;display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0}
+.hcard .n{font-family:var(--mono);font-size:12px;color:var(--mute)}
+.hcard h3{font-family:var(--serif);font-weight:400;font-size:clamp(40px,4.4vw,72px);line-height:.95;letter-spacing:-.02em}
+.hcard p{color:var(--mute);max-width:30ch}
+.hcard:hover h3{font-style:italic}
+
+/* ============ 03 LEAD (ladder) ============ */
+.ladder{margin-top:clamp(40px,6vw,88px);list-style:none;display:flex;flex-direction:column;gap:6px}
+.step{--i:0;position:relative;z-index:0;width:calc(45% + var(--i)*4%);margin-inline:auto;padding:18px 22px;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:16px;background:var(--bg);color:var(--fg);transition:transform .3s cubic-bezier(.16,.84,.28,1),background-color .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease;will-change:transform;contain:layout paint;backface-visibility:hidden}
+.step.stack{display:block}   /* rows with a list of names under the title */
+.step h3{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3vw,46px);letter-spacing:-.01em;line-height:1;transition:letter-spacing .2s ease}
+.step span{font-family:var(--mono);font-size:12px;color:var(--mute);text-align:right;transition:color .2s ease}
+/* "active" row: CSS hover/focus, or .hovered set by JS while scrolling under a still cursor */
+.step:is(:hover,:focus-within,.hovered){background:var(--fg);color:var(--bg);border-color:var(--fg);transform:scale(1.184);z-index:3;box-shadow:0 20px 44px -20px rgba(10,14,18,.5)}
+.step:is(:hover,:focus-within,.hovered) h3{letter-spacing:0}
+.step:is(:hover,:focus-within,.hovered) span{color:var(--lime)}
+
+/* ============ NUMBERS ============ */
+.numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--pad);margin-top:clamp(40px,6vw,88px);border-top:1px solid var(--fg);padding-top:28px;text-align:center}
+.num{display:flex;flex-direction:column;align-items:center}
+.num .v{width:100%;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(52px,9vw,150px);line-height:.9;letter-spacing:-.04em;text-align:center}
+.num .k{margin-top:12px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-align:center}
+
+/* ============ 04 JOIN ============ */
+.join{background:var(--paper);color:var(--ink)}
+.join h2{font-size:clamp(72px,16vw,280px)}
+.join-line{font-family:var(--serif);font-size:clamp(24px,2.6vw,40px);max-width:28ch;margin-top:32px;line-height:1.15}
+.join-row{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-top:48px}
+
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:var(--paper);padding:64px var(--pad) 32px;overflow:hidden}
+.foot-links{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:40px;font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.foot-links a{text-decoration:none;border-bottom:1px solid transparent}
+.foot-links a:hover{border-color:var(--lime)}
+.foot-word{font-family:var(--serif);font-size:clamp(60px,20vw,380px);line-height:.8;letter-spacing:-.05em;white-space:nowrap;text-transform:uppercase}
+.foot-meta{display:flex;justify-content:space-between;margin-top:28px;color:color-mix(in oklab,var(--paper) 55%,transparent)}
+
+/* ============ SCROLL REVEALS (hidden only when GSAP will reveal them) ============ */
+.js .reveal,.js .foot-word{clip-path:inset(0 0 100% 0)}
+
+/* ============ ALTITUDE RAIL ============ */
+.altitude{position:fixed;right:var(--pad);top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;padding:14px 10px;background:rgba(10,14,18,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:999px}
+.altitude .track{width:2px;height:120px;background:rgba(255,255,255,.18);position:relative;overflow:hidden}
+.altitude .fill{position:absolute;inset:0;background:var(--lime);transform:scaleY(0);transform-origin:bottom;transition:transform .08s linear}
+.altitude .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--lime);writing-mode:vertical-rl;text-orientation:mixed}
+
+/* ============ CURSOR (JS adds .has-cursor on mouse devices) ============ */
+.cursor{position:fixed;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--lime);pointer-events:none;z-index:300;mix-blend-mode:difference;display:none}
+.cursor.is-tag{width:auto;height:auto;margin:14px 0 0 14px;border-radius:0;padding:6px 12px;background:var(--lime);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);mix-blend-mode:normal}
+.cursor.is-tag::after{content:attr(data-label);font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink);text-transform:uppercase;white-space:nowrap}
+html.has-cursor .cursor{display:block}
+html.has-cursor *{cursor:none!important}
+
+/* ============ RESPONSIVE + REDUCED MOTION (keep last) ============ */
+@media (max-width:760px){
+  .nav ol,.altitude{display:none}
+  .step{width:100%}
+  .numbers{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .ticker-track{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER (removed by JS if animations can't run) -->
+<div class="pre" aria-hidden="true">
+  <div class="pre-word">Econ Ascent</div>
+  <div class="pre-label">Loading the ascent</div>
+  <div class="pre-count">000</div>
+</div>
+
+<div class="cursor" aria-hidden="true"></div>
+<div class="altitude" aria-hidden="true"><div class="track"><div class="fill" id="alt-fill"></div></div><div class="lbl" id="alt-lbl">ALT 0000M</div></div>
+
+<nav class="nav" aria-label="Levels">
+  <a href="#base" class="mono">Econ Ascent</a>
+  <ol>
+    <li><a href="#learn">Learn</a></li>
+    <li><a href="#lead">Lead</a></li>
+    <li><a href="#join">Join</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- LEVEL 00: BASE CAMP -->
+<section id="base" class="level">
+  <canvas id="terrain" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <div class="level-tag mono"><b>00</b> Base Camp — who we are</div>
+    <h1 class="hero-title" aria-label="Econ Ascent">
+      <span class="line" data-split>ECON</span>
+      <span class="line" data-split>ASCENT</span>
+    </h1>
+    <div class="hero-meta">
+      <p>The University Economics Society. We model markets, argue about them, then go and win the argument in public.</p>
+      <a class="cta mag lime" href="#join" data-tag="Join">Join the ascent <span class="arr">→</span></a>
+    </div>
+  </div>
+  <svg class="chart" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+    <path class="ghost" pathLength="1" d="M0 390 L90 360 L150 372 L240 310 L300 326 L380 262 L440 280 L520 214 L600 238 L680 166 L760 182 L840 112 L920 130 L1000 60"/>
+    <path id="ridge" pathLength="1" d="M0 390 L90 360 L150 372 L240 310 L300 326 L380 262 L440 280 L520 214 L600 238 L680 166 L760 182 L840 112 L920 130 L1000 60"/>
+  </svg>
+  <!-- Edit the items once; JS duplicates them for the seamless loop. class="dn" = red/down. -->
+  <div class="ticker mono" aria-hidden="true">
+    <div class="ticker-track">
+      <span>ECON-IDX ▲ [7.92]</span><span class="dn">SUPPLY SHOCK ▼ [3.28]</span><span>MEMBERS ▲ [060]</span><span>EVENTS ▲ [02]</span><span class="dn">INFLATION ▼ [10.3%]</span><span>PARTNERS ▲ [05]</span>
+    </div>
+  </div>
+</section>
+
+<section class="level manifesto wrap" aria-labelledby="manifesto-h">
+  <div class="level-tag mono"><b>00</b> Manifesto</div>
+  <p id="manifesto-h" data-words>We are not here to pad CVs. We are here to become the people others wish they had in their corner. Stand tall. Speak clear. Build big. Lift everyone. This is the standard. Meet it or raise it.</p>
+</section>
+
+<!-- LEVEL 01: LEARN (cards scroll sideways; add/remove <article>s freely) -->
+<section id="learn" class="learn">
+  <div class="learn-head">
+    <div class="level-tag mono"><b>01</b> Learn — what we do</div>
+    <h2>Learn <em>the easy way</em></h2>
+  </div>
+  <div class="htrack">
+    <article class="hcard reveal"><div class="n">01 / 05</div><h3>Market Simulation</h3><p>Experience real-world market dynamics through simulated trading, strategic decisions, and competitive challenges</p></article>
+    <article class="hcard reveal"><div class="n">02 / 05</div><h3>Workshops</h3><p>Develop practical skills in economics, finance, and business through interactive, hands-on learning.</p></article>
+    <article class="hcard reveal"><div class="n">03 / 05</div><h3>Guest Talks</h3><p>Gain insights from industry professionals, academics, and entrepreneurs on emerging trends and career opportunities.</p></article>
+    <article class="hcard reveal"><div class="n">04 / 05</div><h3>Case Competitions</h3><p>Solve real-world business problems, pitch innovative solutions, and compete with students from other universities.</p></article>
+    <article class="hcard reveal"><div class="n">05 / 05</div><h3>Research</h3><p>Explore economic trends, analyse data, and develop evidence-based perspectives on business and current affairs.</p></article>
+  </div>
+</section>
+
+<!-- LEVEL 03: LEAD (ladder). Bars widen top→bottom automatically; just add/remove <li>s.
+     NOTE: the original file never closed this <section>, so Numbers + Join have always
+     rendered nested inside it (which gives them extra side padding). Kept as-is so the
+     design is pixel-identical; it is now closed properly after Join. -->
+<section id="lead" class="level wrap">
+  <div class="level-tag mono"><b>03</b> Lead — the ladder</div>
+  <h2>The <em>ladder</em></h2>
+  <ol class="ladder" aria-label="Team roles, top to bottom">
+    <li class="step"><h3>Faculty Adviser</h3><span>Hina Amir</span></li>
+    <li class="step"><h3>President</h3><span>Abdul Sami</span></li>
+    <li class="step"><h3>Vice President</h3><span>Anas Abdullah</span></li>
+    <li class="step"><h3>General Secretary</h3><span>Rubeem Afzal</span></li>
+    <li class="step"><h3>Management Secretary</h3><span>Fatima Babar</span></li>
+    <li class="step"><h3>Media Secretary</h3><span>Ghazia Hassan</span></li>
+    <li class="step"><h3>Joint Secretary</h3><span>Minahil Asif</span></li>
+    <li class="step"><h3>Treasurer</h3><span>Zainab Gul</span></li>
+    <li class="step stack"><h3>Directors</h3>
+      <div>
+        <span>Events &amp; Operations — Shafaq</span>
+        <span>Technology &amp; Innovation — Bilal Gujjar</span>
+      </div></li>
+    <li class="step stack"><h3>Creatives</h3>
+      <div><span>Fajar Fatima, Kanooz Fatima, Mustafa Arif</span></div></li>
+    <li class="step stack"><h3>Executive Team</h3>
+      <div><span>Sarah Shabaz, Elaf Zahra, Usman Latif, Humna Fatima</span></div></li>
+    <li class="step"><h3>Members</h3><span>60</span></li>
+  </ol>
+
+  <!-- NUMBERS (data-count = number it counts up to) -->
+  <section class="level wrap" aria-label="Numbers">
+    <div class="numbers">
+      <div class="num reveal"><div class="v"><span data-count="60">0</span></div><div class="k">Members</div></div>
+      <div class="num reveal"><div class="v"><span data-count="02">0</span></div><div class="k">Events</div></div>
+      <div class="num reveal"><div class="v"><span data-count="05">0</span></div><div class="k">Partners</div></div>
+    </div>
+  </section>
+
+  <!-- LEVEL 04: JOIN -->
+  <section id="join" class="level join wrap">
+    <div class="level-tag mono"><b>04</b> Join — summit</div>
+    <h2>Join the <em>ascent</em></h2>
+    <p class="join-line">We are looking for people who read the footnotes, argue in good faith, and can explain a bond yield at 2am. [Short line on what you look for.]</p>
+    <div class="join-row">
+      <a class="cta mag lime" href="[form URL]" data-tag="Apply">Apply now <span class="arr">→</span></a>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-links">
+    <a href="https://www.instagram.com/" data-tag="Follow">Instagram</a>
+    <a href="https://www.linkedin.com/company/" data-tag="Follow">LinkedIn</a>
+    <a href="https://twitter.com/" data-tag="Follow">X</a>
+    <a href="mailto:[email]" data-tag="Write">Email</a>
+  </div>
+  <div class="foot-word" aria-hidden="true" id="foot-word">Econ Ascent</div>
+  <div class="foot-meta mono"><span>© 2026 Econ Ascent</span><span>Rise above equilibrium.</span></div>
+</footer>
+
+<!-- VENDOR (CDN). The page still works with all of them blocked. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
+<script>
+/* ============================================================
+   ECON ASCENT — scripts, in reading order:
+   0 helpers · 1 text splitting · 2 scroll-driven UI · 3 hero canvas
+   4 counters · 5 pointer effects · 6 GSAP animations (skipped if
+   GSAP is missing or the visitor prefers reduced motion)
+   ============================================================ */
+(() => {
+  /* ---------- CONFIG (tweak here) ---------- */
+  const CFG = {
+    counterMs: 2000,                          // number count-up duration
+    lenis: { duration: 1.15, smoothWheel: true },
+    terrain: { lines: 4, speed: 0.36 },       // hero wave lines, drift speed (rad/s)
+  };
+
+  /* ---------- 0. Helpers & capability flags ---------- */
+  const $  = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+  const root = document.documentElement;
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FINE = matchMedia('(pointer:fine)').matches;
+  const animate = !!(window.gsap && window.ScrollTrigger) && !RM;   // GSAP motion allowed?
+  const mouseFx = FINE && !RM;                                      // custom cursor + hover effects?
+  const rafOnce = fn => { let busy = false; return () => { if (busy) return; busy = true; requestAnimationFrame(() => { busy = false; fn(); }); }; };
+
+  // `.js` unlocks the hidden "before animation" styles; without it everything is simply visible.
+  if (animate) root.classList.add('js'); else $('.pre')?.remove();
+  if (mouseFx) root.classList.add('has-cursor');
+
+  /* ---------- 1. Text splitting & generated markup ---------- */
+  $$('[data-split]').forEach(el => {            // letters (hero title)
+    const text = el.textContent.trim();
+    el.setAttribute('aria-label', text);
+    el.innerHTML = [...text].map(c => `<span class="ch" aria-hidden="true">${c}</span>`).join('');
+  });
+  $$('[data-words]').forEach(el => {            // words (manifesto)
+    el.innerHTML = el.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+  });
+  const ticker = $('.ticker-track');            // duplicate ticker items for a seamless loop
+  ticker.append(...[...ticker.children].map(n => n.cloneNode(true)));
+  $$('.step').forEach((el, i) => el.style.setProperty('--i', i));   // ladder width steps
+
+  /* ---------- 2. Smooth scroll + scroll-driven UI ---------- */
+  if (animate && window.Lenis) {
+    const lenis = new Lenis(CFG.lenis);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // Altitude rail
+  const altFill = $('#alt-fill'), altLbl = $('#alt-lbl');
+  const updateAltitude = () => {
+    const max = root.scrollHeight - innerHeight;
+    const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    altFill.style.transform = `scaleY(${p})`;
+    altLbl.textContent = 'ALT ' + String(Math.round(p * 9000)).padStart(4, '0') + 'M';
+  };
+
+  // Ladder: CSS :hover misses bars that scroll under a still cursor, so also check by position.
+  let px = 0, py = 0, hovered = null;
+  const updateLadderHover = () => {
+    const step = document.elementFromPoint(px, py)?.closest('.step') || null;
+    if (step === hovered) return;
+    hovered?.classList.remove('hovered');
+    step?.classList.add('hovered');
+    hovered = step;
+  };
+
+  const queueAltitude = rafOnce(updateAltitude);
+  const queueHover = mouseFx ? rafOnce(updateLadderHover) : () => {};
+  addEventListener('scroll', () => { queueAltitude(); queueHover(); }, { passive: true });
+  queueAltitude();
+
+  /* ---------- 3. Hero terrain canvas (draws only while visible) ---------- */
+  const canvas = $('#terrain');
+  const ctx = canvas?.getContext('2d');
+  if (!ctx) canvas?.remove();                   // fallback = the SVG chart underneath
+  else {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const start = performance.now();
+    let raf = 0;
+    const draw = (now = start) => {
+      const { width: w, height: h } = canvas;
+      const drift = (now - start) / 1000 * CFG.terrain.speed;
+      ctx.clearRect(0, 0, w, h);
+      for (let l = 0; l < CFG.terrain.lines; l++) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 8 * dpr) {
+          const y = h * (0.42 + l * 0.12)
+            + Math.sin(x * 0.004 / dpr + drift + l) * 18 * dpr * (1 + l * 0.3)
+            + Math.sin(x * 0.011 / dpr + l * 2) * 6 * dpr;
+          x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(212,255,58,${0.10 + l * 0.05})`;
+        ctx.lineWidth = dpr;
+        ctx.stroke();
+      }
+    };
+    const loop = now => { draw(now); raf = requestAnimationFrame(loop); };
+    new ResizeObserver(() => {
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      if (!raf) draw();                         // static redraw when not animating
+    }).observe(canvas);
+    if (!RM) new IntersectionObserver(([e]) => {
+      cancelAnimationFrame(raf);
+      raf = e.isIntersecting ? requestAnimationFrame(loop) : 0;
+    }).observe(canvas);
+  }
+
+  /* ---------- 4. Number counters (work without GSAP) ---------- */
+  const countUp = el => {
+    const target = Number(el.dataset.count);
+    if (RM) { el.textContent = target; return; }
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min((now - t0) / CFG.counterMs, 1);
+      el.textContent = p < 1 ? Math.floor((1 - (1 - p) ** 3) * target) : target;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const counterIO = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { counterIO.unobserve(e.target); countUp(e.target); }
+  }), { threshold: 0.5 });
+  $$('[data-count]').forEach(el => counterIO.observe(el));
+
+  /* ---------- 5. Pointer effects: cursor + price-tag labels ---------- */
+  if (mouseFx) {
+    const cursor = $('.cursor');
+    let mx = 0, my = 0, cx = 0, cy = 0, moving = false;
+    const follow = () => {                      // eases toward the mouse, stops when it arrives
+      cx += (mx - cx) * 0.2; cy += (my - cy) * 0.2;
+      cursor.style.transform = `translate(${cx}px,${cy}px)`;
+      moving = Math.abs(mx - cx) > 0.1 || Math.abs(my - cy) > 0.1;
+      if (moving) requestAnimationFrame(follow);
+    };
+    addEventListener('mousemove', e => {
+      mx = px = e.clientX; my = py = e.clientY;
+      queueHover();
+      if (!moving) { moving = true; requestAnimationFrame(follow); }
+    });
+    $$('[data-tag]').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.dataset.label = el.dataset.tag; cursor.classList.add('is-tag'); });
+      el.addEventListener('mouseleave', () => cursor.classList.remove('is-tag'));
+    });
+  }
+
+  /* ---------- 6. GSAP animations ---------- */
+  if (!animate) return;                         // content is already visible
+  gsap.registerPlugin(ScrollTrigger);
+  const onceAt = (trigger, start) => ({ trigger, start, once: true });
+
+  // Magnetic buttons
+  if (mouseFx) $$('.mag').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      gsap.to(btn, { x: (e.clientX - r.left - r.width / 2) * 0.25, y: (e.clientY - r.top - r.height / 2) * 0.35, duration: 0.4, overwrite: 'auto' });
+    });
+    btn.addEventListener('mouseleave', () => gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.4)', overwrite: 'auto' }));
+  });
+
+  // Preloader 0→100, then it lifts away and the hero letters rise in
+  const pre = $('.pre'), preCount = $('.pre-count'), counter = { v: 0 };
+  gsap.timeline({ defaults: { ease: 'expo.out' } })
+    .to(counter, { v: 100, duration: 1.4, ease: 'power2.inOut',
+      onUpdate: () => preCount.textContent = String(Math.round(counter.v)).padStart(3, '0') })
+    .to('.pre-label', { opacity: 0, duration: 0.3 }, '-=0.2')
+    .to(pre, { yPercent: -100, duration: 0.9, ease: 'expo.inOut' })
+    .set(pre, { display: 'none' })
+    .from('#base .ch', { yPercent: 110, rotate: 4, stagger: 0.035, duration: 1.1 }, '-=0.5');
+
+  // Hero: chart draws itself, title tracking opens as you scroll
+  const heroScrub = { trigger: '#base', start: 'top top', scrub: true };
+  gsap.fromTo('#ridge', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', scrollTrigger: { ...heroScrub, end: '+=120%' } });
+  gsap.fromTo('.hero-title', { letterSpacing: '-0.06em' }, { letterSpacing: '0.01em', ease: 'none', scrollTrigger: { ...heroScrub, end: '+=100%' } });
+
+  // Manifesto: words light up one by one
+  gsap.to('.manifesto .w', { opacity: 1, stagger: 0.1, ease: 'none',
+    scrollTrigger: { trigger: '.manifesto', start: 'top 75%', end: 'bottom 45%', scrub: true } });
+
+  // Learn: pinned horizontal scroll
+  const htrack = $('.htrack');
+  const hScroll = () => Math.max(0, htrack.scrollWidth - root.clientWidth);
+  gsap.to(htrack, { x: () => -hScroll(), ease: 'none',
+    scrollTrigger: { trigger: '#learn', pin: true, scrub: 1, start: 'top top', end: () => '+=' + hScroll(), invalidateOnRefresh: true } });
+
+  // One-shot reveals
+  $$('.reveal').forEach(el => gsap.to(el, { clipPath: 'inset(0% 0 0 0)', duration: 1.1, ease: 'expo.out', scrollTrigger: onceAt(el, 'top 88%') }));
+  gsap.from('.step', { y: 60, opacity: 0, stagger: 0.09, duration: 0.9, ease: 'expo.out', clearProps: 'transform,opacity', scrollTrigger: onceAt('.ladder', 'top 80%') });
+  gsap.to('#foot-word', { clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: 'expo.out', scrollTrigger: onceAt('footer', 'top 85%') });
+
+  // Re-measure once webfonts have settled
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+})();
+</script>
+</body>
+</html>
